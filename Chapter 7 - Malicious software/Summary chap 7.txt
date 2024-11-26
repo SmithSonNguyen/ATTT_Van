@@ -1,0 +1,5 @@
+Intruder
+Hacker: 4 phases
+Malicious Software: Introduction, Terminology, location, Infection
+Taxonomy of Malicious Software: many types
+LAB

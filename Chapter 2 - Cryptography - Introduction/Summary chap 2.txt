@@ -1,0 +1,7 @@
+History of Encryption
+Substitution Techniques: Caesar Cipher, Monoalphabetic Ciphers, Playfair Cipher, Polyalphabetic Ciphers
+Transposition Techniques: Rail Fence
+Symmetric and asymmetric encryption
+Hash
+Digital signatures
+Exercise

@@ -1,0 +1,7 @@
+Introduction to access control
+Access control structures: ACL and Capability lists
+Administration and aggregation of access control structures
+AC Policies: MAC, DAC, BRAC, ABAC
+ACL in Linux
+ACL in Windows
+LAB

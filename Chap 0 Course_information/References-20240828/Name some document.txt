@@ -1,0 +1,4 @@
+[1] Computer Security  Principles and Practice -Pearson, William Stallings, Lawrie Brown, 2014 
+[2] Principles of information security - Course Technology   Michael E Whitman_ Herbert J Mattord, 2012
+[3] Applied Information Security A Hands-on Approach    David Basin, Patrick Schaller, Michael Schläpfer auth, 2011
+[4] CISSP_ Certified Information Systems Security Professional Study Guide  -John Wiley & Sons, 2011

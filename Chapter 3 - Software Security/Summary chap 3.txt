@@ -1,0 +1,11 @@
+Software Security issues
+Sources of Software Vulnerabilities
+Process memory layout
+Software Vulnerabilities - Buffer overflows
+Stack overflow & Heap overflow
+Attacks: code injection & code reuse
+Variations of Buffer Overflow: Return to libc
+Defense Against Buffer Overflow Attacks
+Stack Canary + Address Space Layout Randomization (ASLR)
+Security in Software Development Life Cycle
+LAB

